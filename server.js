@@ -3,7 +3,7 @@ const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt'); 
 
 const app = express();
 const PORT = process.env.PORT || 9000;
@@ -62,6 +62,7 @@ app.post('/register', async (req, res) => {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
+        console.log(res)
         res.json({ id: this.lastID });
     });
 });
@@ -106,7 +107,7 @@ app.put('/projects/:id', authenticateToken, (req, res) => {
     db.run(`UPDATE projects SET name = ?, description = ? WHERE id = ?`,
         [name, description, id], function(err) {
             if (err) {
-                return res.status(500).json({ error: err.message });
+                return res.status(500).json({ error: err.message + "name, description, id > ",name, description, id });
             }
             res.json({ updated: this.changes });
         });
@@ -133,17 +134,36 @@ app.get('/projects/:id/tasks', authenticateToken, (req, res) => {
     });
 });
 
-app.put('/tasks/:id', authenticateToken, (req, res) => {
-    const { id } = req.params;
-    const { title, description } = req.body;
-    db.run(`UPDATE tasks SET title = ?, description = ? WHERE id = ?`,
-        [title, description, id], function(err) {
-            if (err) {
-                return res.status(500).json({ error: err.message });
-            }
-            res.json({ updated: this.changes });
-        });
-});
+    app.put('/tasks/:id', authenticateToken, (req, res) => {
+        const { id } = req.params;
+        const { title, description } = req.body;
+        db.run(`UPDATE tasks SET title = ?, description = ? WHERE id = ?`,
+            [title, description, id], function(err) {
+                if (err) {
+                    return res.status(500).json({ error: err.message });
+                }
+                res.json({ updated: this.changes });
+            });
+    });
+
+    app.put('/tasks/:id/status', authenticateToken, (req, res) => {
+        const { id } = req.params;
+        const { status } = req.body;
+        
+        if (!['incomplete', 'completed'].includes(status)) {
+            return res.status(400).json({ error: 'Invalid task status' });
+        }
+    
+        db.run(`UPDATE tasks SET status = ? WHERE id = ?`,
+            [status, id], function(err) {
+                if (err) {
+                    return res.status(500).json({ error: err.message });
+                }
+                res.json({ updated: this.changes });
+            });
+    });
+    
+
 
 app.delete('/tasks/:id', authenticateToken, (req, res) => {
     const { id } = req.params;
@@ -157,5 +177,5 @@ app.delete('/tasks/:id', authenticateToken, (req, res) => {
 
 // Start the Server
 app.listen(PORT, () => {
-    console.log(`Server is running Gooduck & Happy coding !`);
+    console.log(`Server is running on ${PORT} , Goodluck & Happy coding !`);
 });
