@@ -71,6 +71,7 @@
 ### **Task Endpoints**
 
 - **Update Task Title and Description:**
+
   - **Method:** `PUT`
   - **URL:** `/tasks/:id`
   - **Body:**
@@ -78,5 +79,17 @@
     {
       "title": "New Task Title",
       "description": "Updated Task Description"
+    }
+    ```
+
+- Endpoint added to can mark tasks as complete/incomplete
+
+- **Update Task status:**
+  - **Method:** `PUT`
+  - **URL:** `'/tasks/:id/status'`
+  - **Body:**
+    ```json
+    {
+      "status": "complete | incomplete"
     }
     ```
